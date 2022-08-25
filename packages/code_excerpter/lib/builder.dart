@@ -49,10 +49,10 @@ class CodeExcerptBuilder implements Builder {
   String _toYaml(Map<String, List<String>> excerpts) {
     if (excerpts.isEmpty) return '';
 
-    const yamlExcerptLeftBorderCharKey = '#border';
+    // const yamlExcerptLeftBorderCharKey = '#border';
     final s = StringBuffer();
 
-    s.writeln("'$yamlExcerptLeftBorderCharKey': '$excerptLineLeftBorderChar'");
+    // s.writeln("'$yamlExcerptLeftBorderCharKey': '$excerptLineLeftBorderChar'");
     excerpts.forEach((name, lines) {
       s.writeln(_yamlEntry(name, lines));
     });
@@ -62,7 +62,7 @@ class CodeExcerptBuilder implements Builder {
   String _yamlEntry(String regionName, List<String> lines) {
     final codeAsYamlStringValue = lines
         // YAML multiline string: indent by 2 spaces.
-        .map((line) => '  $excerptLineLeftBorderChar$line')
+        .map((line) => '  $line')
         .join(eol);
     return "'$regionName': |+\n$codeAsYamlStringValue";
   }
