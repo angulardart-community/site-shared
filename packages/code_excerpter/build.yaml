@@ -3,7 +3,7 @@ builders:
     import: 'package:code_excerpter/builder.dart'
     auto_apply: all_packages
     builder_factories: [builder]
-    build_extensions: {'': [.excerpt.yaml]}
+    build_extensions: {'': [.excerpt.json]}
     # TODO(redbrogdon): Consider removing this if not used elsewhere.
     defaults:
       generate_for:

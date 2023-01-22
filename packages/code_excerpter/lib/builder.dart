@@ -1,16 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:build/build.dart';
 
 import 'src/excerpter.dart';
 import 'src/util/line.dart';
 
-const excerptLineLeftBorderChar = '|';
-
 Builder builder(BuilderOptions options) => CodeExcerptBuilder(options);
 
 class CodeExcerptBuilder implements Builder {
-  static const outputExtension = '.excerpt.yaml';
+  static const outputExtension = '.excerpt.json';
 
   final BuilderOptions? options;
 
@@ -32,12 +31,13 @@ class CodeExcerptBuilder implements Builder {
     final outputAssetId = assetId.addExtension(outputExtension);
 
     final excerpter = Excerpter(assetId.path, content);
-    final yaml = _toYaml(excerpter.weave().excerpts);
-    if (yaml.isNotEmpty) {
-      await buildStep.writeAsString(outputAssetId, yaml);
+    final raw = excerpter.weave().excerpts;
+
+    if (raw.isNotEmpty) {
+      final json = jsonEncode(raw.map((region, lines) =>
+          MapEntry<String, String>(region, lines.join(eol))));
+      await buildStep.writeAsString(outputAssetId, json);
       log.info('wrote $outputAssetId');
-    } else {
-      // log.warning(' $outputAssetId has no excerpts');
     }
   }
 
@@ -45,25 +45,4 @@ class CodeExcerptBuilder implements Builder {
   Map<String, List<String>> get buildExtensions => {
         '': [outputExtension]
       };
-
-  String _toYaml(Map<String, List<String>> excerpts) {
-    if (excerpts.isEmpty) return '';
-
-    // const yamlExcerptLeftBorderCharKey = '#border';
-    final s = StringBuffer();
-
-    // s.writeln("'$yamlExcerptLeftBorderCharKey': '$excerptLineLeftBorderChar'");
-    excerpts.forEach((name, lines) {
-      s.writeln(_yamlEntry(name, lines));
-    });
-    return s.toString();
-  }
-
-  String _yamlEntry(String regionName, List<String> lines) {
-    final codeAsYamlStringValue = lines
-        // YAML multiline string: indent by 2 spaces.
-        .map((line) => '  $line')
-        .join(eol);
-    return "'$regionName': |+\n$codeAsYamlStringValue";
-  }
 }
